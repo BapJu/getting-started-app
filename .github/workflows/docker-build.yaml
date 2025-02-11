@@ -30,9 +30,13 @@ jobs:
       - name: Push Docker image
         run: docker push bapju/getting-started-app:latest
 
-      - name: Create a GitHub release
-        uses: ncipollo/release-action@v1
+      - name: Create tag
+        uses: actions/github-script@v5
         with:
-          tag: ${{ steps.tag_version.outputs.new_tag }}
-          name: Release ${{ steps.tag_version.outputs.new_tag }}
-          body: ${{ steps.tag_version.outputs.changelog }}
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/<tagname>',
+              sha: context.sha
+            })
