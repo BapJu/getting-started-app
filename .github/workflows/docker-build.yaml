@@ -37,13 +37,13 @@ jobs:
           echo "next_version=$next_version" >> $GITHUB_ENV
 
       - name: Build Docker image
-        run: docker build -t my-docker-image:${{ env.next_version }} .
+        run: docker build -t bapju/getting-started-app:${{ env.next_version }} .
 
       - name: List Docker images
         run: docker images
 
       - name: Push Docker image
-        run: docker push my-docker-image:${{ env.next_version }}
+        run: docker push bapju/getting-started-app:${{ env.next_version }}
 
       - name: Create tag
         uses: actions/github-script@v5
