@@ -23,21 +23,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
-      - name: Get next version
-        id: get_next_version
-        run: |
-          latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
-          if [ -z "$latest_tag" ]; then
-            next_version="1.0.0"
-          else
-            IFS='.' read -r -a version_parts <<< "$latest_tag"
-            major=${version_parts[0]}
-            minor=${version_parts[1]}
-            patch=${version_parts[2]}
-            next_version="$major.$minor.$((patch + 1))"
-          fi
-          echo "next_version=$next_version" >> $GITHUB_ENV
-
       - name: Build Docker image
         run: docker build -t bapju/getting-started-app:${{ env.next_version }} .
 
@@ -46,18 +31,6 @@ jobs:
 
       - name: Push Docker image
         run: docker push bapju/getting-started-app:${{ env.next_version }}
-
-      - name: Create tag
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const nextVersion = '${{ env.next_version }}';
-            await github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/tags/${nextVersion}`,
-              sha: context.sha
-            });
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -72,5 +45,4 @@ jobs:
           aws cloudformation deploy \
             --template-file .github/workflows/cloudformation/template.yaml \
             --stack-name gp8-tp4 \
-            --parameter-overrides DockerImageTag=${{ env.next_version }} \
             --capabilities CAPABILITY_NAMED_IAM
