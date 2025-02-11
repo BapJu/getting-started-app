@@ -22,10 +22,10 @@ jobs:
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t getting-started-app:latest .
+        run: docker build -t bapju/getting-started-app:latest .
 
       - name: List Docker images
         run: docker images
 
       - name: Push Docker image
-        run: docker push getting-started-app:latest
+        run: docker push bapju/getting-started-app:latest
